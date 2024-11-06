@@ -11,6 +11,9 @@
 # ---- pdftocairo ----
 # sudo apt install poppler-utils
 
+# ---- rsvg-convert ----
+# sudo apt install librsvg2-bin
+
 # ---- typst ----
 # # Firstly, you need to install Rust.
 # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh

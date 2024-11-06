@@ -66,6 +66,7 @@ The following software is required to compile the document:
 - typst-cli
 - drawio
 - poppler-utils
+- librsvg2-bin
 
 You can obtain additional information from Comments of `compile.sh`.
 
