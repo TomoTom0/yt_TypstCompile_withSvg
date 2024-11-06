@@ -38,7 +38,7 @@
     else
       echo "skipped: ${filename} is not updated"
     fi
-  done < <(find img -name "*.drawio*" -printf "%f\n")
+  done < <(find img -name "*.drawio" -or -name "*.drawio.svg"  -printf "%f\n")
   rm -rf tmp/*
 
   echo ""

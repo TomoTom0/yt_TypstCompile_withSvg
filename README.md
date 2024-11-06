@@ -44,7 +44,7 @@ bash ./compile.sh
 
 In `compile.sh`, the following steps are executed:
 1. Drawio images are converted to SVG images.
-   1. `.drawio*` images are converted to `.pdf` images into temporary folder.
+   1. `.drawio`, `.drawio.svg` images are converted to `.pdf` images into temporary folder.
    2. `.pdf` images are converted to `_notext.svg` images.
 2. SVG images are converted to PDF images.
    1. `.svg` images are converted to `.pdf` images into temporary folder.
