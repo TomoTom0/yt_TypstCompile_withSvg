@@ -3,16 +3,10 @@
 // #import "@preview/in-dexter:0.5.3": *
 
 // Store theorem environment numbering
-#let thmcounters = state("thm",
-  (
-    "counters": ("heading": ()),
-    "latest": ()
-  )
-)
+#let thmcounters = state("thm", ("counters": ("heading": ()), "latest": ()))
 
 // Setting theorem environment
 #let thmenv(identifier, base, base_level, fmt) = {
-
   let global_numbering = numbering
 
   return (
@@ -23,7 +17,7 @@
     refnumbering: auto,
     supplement: identifier,
     base: base,
-    base_level: base_level
+    base_level: base_level,
   ) => {
     let name = none
     if args != none and args.pos().len() > 0 {
@@ -43,7 +37,7 @@
           // Manually update heading counter
           counters.at("heading") = counter(heading).at(loc)
           if not identifier in counters.keys() {
-            counters.insert(identifier, (0, ))
+            counters.insert(identifier, (0,))
           }
 
           let tc = counters.at(identifier)
@@ -54,7 +48,7 @@
             if base_level != none {
               if bc.len() < base_level {
                 bc = bc + (0,) * (base_level - bc.len())
-              } else if bc.len() > base_level{
+              } else if bc.len() > base_level {
                 bc = bc.slice(0, base_level)
               }
             }
@@ -72,10 +66,7 @@
           }
 
           let latest = counters.at(identifier)
-          return (
-            "counters": counters,
-            "latest": latest
-          )
+          return ("counters": counters, "latest": latest)
         })
       })
 
@@ -85,9 +76,8 @@
     }
 
     return figure(
-      result +  // hacky!
-      fmt(name, number, body, ..args.named()) +
-      [#metadata(identifier) <meta:thmenvcounter>],
+      result + // hacky!
+        fmt(name, number, body, ..args.named()) + [#metadata(identifier) <meta:thmenvcounter>],
       kind: "thmenv",
       outlined: false,
       caption: none,
@@ -117,7 +107,7 @@
   }
   let boxfmt(name, number, body, title: auto) = {
     if not name == none {
-      name = [ #namefmt(name)]
+      name = [ #namefmt(name) ]
     } else {
       name = []
     }
@@ -129,29 +119,17 @@
     }
     title = titlefmt(title)
     body = bodyfmt(body)
-    pad(
-      ..padding,
-      align(
-        boxalign,
-        block(
-          width: 100%,
-          inset: 0.8em,
-          radius: 0.3em,
-          stroke: 0.05em,
-          breakable: false,
-          ..blockargs.named(),
-          [#title#name#linebreak()#body]
-      ))
-    )
+    pad(..padding, align(boxalign, block(
+      width: 100%,
+      inset: 0.8em,
+      radius: 0.3em,
+      stroke: 0.05em,
+      breakable: false,
+      ..blockargs.named(),
+      [#title#name#linebreak()#body],
+    )))
   }
-  return thmenv(
-    identifier,
-    base,
-    base_level,
-    boxfmt
-  ).with(
-    supplement: supplement,
-  )
+  return thmenv(identifier, base, base_level, boxfmt).with(supplement: supplement)
 }
 
 // Setting plain version
@@ -195,24 +173,12 @@
 
 // Definition of table format
 #let tbl(tbl, caption: "") = {
-  figure(
-    tbl,
-    caption: caption,
-    supplement: [表],
-    numbering: table_num,
-    kind: "table",
-  )
+  figure(tbl, caption: caption, supplement: [表], numbering: table_num, kind: "table")
 }
 
 // Definition of image format
 #let img(img, caption: "", title: "") = {
-  figure(
-    img,
-    caption: title+caption,
-    supplement: [図],
-    numbering: image_num,
-    kind: "image",
-  )
+  figure(img, caption: title + caption, supplement: [図], numbering: image_num, kind: "image")
 }
 
 // Definition of abstruct page
@@ -231,8 +197,8 @@
     abstract_ja
     par(first-line-indent: 0em)[
       #text(weight: "bold", size: 12pt)[
-      キーワード:
-      #keywords_ja.join(", ")
+        キーワード:
+        #keywords_ja.join(", ")
       ]
     ]
   } else {
@@ -248,7 +214,7 @@
     abstract_en
     par(first-line-indent: 0em)[
       #text(weight: "bold", size: 12pt)[
-        Key Words: 
+        Key Words:
         #keywords_en.join("; ")
       ]
     ]
@@ -280,51 +246,52 @@
 
   set text(size: 12pt)
   set par(leading: 1.24em, first-line-indent: 0pt)
-  locate(loc => {
-    let elements = query(heading.where(outlined: true), loc)
-    for el in elements {
-      let before_toc = query(heading.where(outlined: true).before(loc), loc).find((one) => {one.body == el.body}) != none
-      let page_num = if before_toc {
-        numbering("i", counter(page).at(el.location()).first())
-      } else {
-        counter(page).at(el.location()).first()
-      }
-
-      link(el.location())[#{
-        // acknoledgement has no numbering
-        let chapt_num = if el.numbering != none {
-          numbering(el.numbering, ..counter(heading).at(el.location()))
-        } else {none}
-
-        if el.level == 1 {
-          set text(weight: "black")
-          if chapt_num == none {} else {
-            chapt_num
-            "  "
-          }
-          let rebody = to-string(el.body)
-          rebody
-        } else if el.level == 2 {
-          h(2em)
-          chapt_num
-          " "
-          let rebody = to-string(el.body)
-          rebody
+  locate(
+    loc => {
+      let elements = query(heading.where(outlined: true), loc)
+      for el in elements {
+        let before_toc = query(heading.where(outlined: true).before(loc), loc).find((one) => { one.body == el.body }) != none
+        let page_num = if before_toc {
+          numbering("i", counter(page).at(el.location()).first())
         } else {
-          h(5em)
-          chapt_num
-          " "
-          let rebody = to-string(el.body)
-          rebody
+          counter(page).at(el.location()).first()
         }
-      }]
-      box(width: 1fr, h(0.5em) + box(width: 1fr, repeat[.]) + h(0.5em))
-      [#page_num]
-      linebreak()
-    }
-  })
-}
 
+        link(el.location())[#{
+            // acknoledgement has no numbering
+            let chapt_num = if el.numbering != none {
+              numbering(el.numbering, ..counter(heading).at(el.location()))
+            } else { none }
+
+            if el.level == 1 {
+              set text(weight: "black")
+              if chapt_num == none {} else {
+                chapt_num
+                "  "
+              }
+              let rebody = to-string(el.body)
+              rebody
+            } else if el.level == 2 {
+              h(2em)
+              chapt_num
+              " "
+              let rebody = to-string(el.body)
+              rebody
+            } else {
+              h(5em)
+              chapt_num
+              " "
+              let rebody = to-string(el.body)
+              rebody
+            }
+          }]
+        box(width: 1fr, h(0.5em) + box(width: 1fr, repeat[.]) + h(0.5em))
+        [#page_num]
+        linebreak()
+      }
+    },
+  )
+}
 
 // Definition of image outline
 #let toc_img() = {
@@ -371,7 +338,7 @@
 
   set text(size: 12pt)
   set par(leading: 1.24em, first-line-indent: 0pt)
-   locate(loc => {
+  locate(loc => {
     let elements = query(figure.where(outlined: true, kind: "table"), loc)
     for el in elements {
       let chapt = counter(heading).at(el.location()).at(0)
@@ -400,10 +367,8 @@
 #let master_thesis(
   // The master thesis title.
   title: "ここにtitleが入る",
-
   // The paper`s author.
   author: "ここに著者が入る",
-
   // The author's information
   university: "",
   school: "",
@@ -418,22 +383,17 @@
   date: (datetime.today().year(), datetime.today().month(), datetime.today().day()),
   version: "",
   icon_img_src: "",
-
   paper-type: "",
-
   // Abstruct
   abstract_ja: [],
   abstract_en: [],
   keywords_ja: (),
   keywords_en: (),
-
   // The paper size to use.
   paper-size: "a4",
-
   // The path to a bibliography file if you want to cite some external
   // works.
   bibliography-file: none,
-
   // The paper's content.
   body,
 ) = {
@@ -445,7 +405,7 @@
       let chapt = counter(heading).at(loc).at(0)
 
       link(loc)[#if el.kind == "image" or el.kind == "table" {
-          // counting 
+          // counting
           let num = counter(el.kind + "-chapter" + str(chapt)).at(loc).at(0) + 1
           it.element.supplement
           " "
@@ -535,56 +495,38 @@
     // "Hiragino Mincho ProN",
     // "MS Mincho",
     // "Noto Serif CJK JP",
-    ), size: 12pt)
+  ), size: 12pt)
 
   // Configure the page properties.
-  set page(
-    paper: paper-size,
-    margin: (bottom: 1.75cm, top: 2.25cm),
-  )
+  set page(paper: paper-size, margin: (bottom: 1.75cm, top: 2.25cm))
 
   // The first page.
   align(center)[
     #v(80pt)
-    #text(
-      size: 16pt,
-    )[
+    #text(size: 16pt)[
       #university #school #department
     ]
 
-    #text(
-      size: 16pt,
-    )[
+    #text(size: 16pt)[
       #class#paper-type
     ]
     #v(40pt)
-    #text(
-      size: 22pt,
-    )[
+    #text(size: 22pt)[
       #title
     ]
     #v(50pt)
-    #text(
-      size: 16pt,
-    )[
+    #text(size: 16pt)[
       #id #author
     ]
 
     #v(50pt)
-    #grid(
-      columns: 2,
-      align: center,
-    [
-    #image("../img/DXC_Logo_Horiz_Purple-Black_RGB.png", height: 30pt)  
-    ],
-    [
-    #image("../img/PJ12_team_icon.svg", height: 30pt)  
-    ]
-     )
+    #grid(columns: 2, align: center, [
+      #image("../img/DXC_Logo_Horiz_Purple-Black_RGB.png", height: 30pt)
+    ], [
+      #image("../img/PJ12_team_icon.svg", height: 30pt)
+    ])
     #v(100pt)
-    #text(
-      size: 16pt,
-    )[
+    #text(size: 16pt)[
       #date.at(0) - #date.at(1) - #date.at(2)
     ]
 
@@ -597,20 +539,16 @@
     //   ]
     // }
     #v(10pt)
-    #text(
-      size: 16pt,
-    )[
+    #text(size: 16pt)[
       Ver. #version
     ]
     #v(50pt)
     #pagebreak()
   ]
 
-  set page(
-    footer: [
-      #align(center)[#counter(page).display("i")]
-    ]
-  )
+  set page(footer: [
+    #align(center)[#counter(page).display("i")]
+  ])
 
   counter(page).update(1)
   // Show abstruct
@@ -621,7 +559,7 @@
   set par(leading: 0.78em, first-line-indent: 12pt, justify: true)
   show par: set block(spacing: 0.78em)
 
-   // Configure chapter headings.
+  // Configure chapter headings.
   set heading(numbering: (..nums) => {
     nums.pos().map(str).join(".") + " "
   })
@@ -631,13 +569,13 @@
     set text(weight: "bold", size: 20pt)
     set block(spacing: 1.5em)
     let pre_chapt = if it.numbering != none {
-          text()[
-            #v(50pt)
-            第
-            #numbering(it.numbering, ..counter(heading).at(it.location()))
-            章
-          ] 
-        } else {none}
+      text()[
+        #v(50pt)
+        第
+        #numbering(it.numbering, ..counter(heading).at(it.location()))
+        章
+      ]
+    } else { none }
     text()[
       #pre_chapt \
       #it.body \
@@ -656,22 +594,19 @@
     it
   } + empty_par()
 
-
   // Start with a chapter outline.
   toc()
 
-  set page(
-    footer: [
-      #align(center)[#counter(page).display("1")]
-    ]
-  )
+  set page(footer: [
+    #align(center)[#counter(page).display("1")]
+  ])
 
   counter(page).update(1)
- 
+
   set math.equation(supplement: [式], numbering: equation_num)
 
   body
-  
+
   if (flag_toc_img) {
     pagebreak()
     toc_img()
@@ -680,28 +615,26 @@
     pagebreak()
     toc_tbl()
   }
-  
-// let add-index-entry(word) = {
-//   index(word)
-//   word
-// }
 
+  // let add-index-entry(word) = {
+  //   index(word)
+  //   word
+  // }
 
-// let indexwords = [
-//   "Epic"
-// ]
+  // let indexwords = [
+  //   "Epic"
+  // ]
 
-// for line in body {
-//   let words = split(line, " ")
-//   for word in words {
-//     if (word in indexwords) {
-//       add-index-entry(word)
-//     } else {
-//       word
-//     }
-//   }
-// }
-
+  // for line in body {
+  //   let words = split(line, " ")
+  //   for word in words {
+  //     if (word in indexwords) {
+  //       add-index-entry(word)
+  //     } else {
+  //       word
+  //     }
+  //   }
+  // }
 
   // if (flag_index) {
   //   pagebreak()
@@ -709,7 +642,6 @@
   //     make-index(title: "索引")
   //   ]
   // }
-
 
   // Display bibliography.
   if bibliography-file != none {
@@ -720,17 +652,5 @@
 
 // LATEX character
 #let LATEX = {
-  [L];box(move(
-    dx: -4.2pt, dy: -1.2pt,
-    box(scale(65%)[A])
-  ));box(move(
-  dx: -5.7pt, dy: 0pt,
-  [T]
-));box(move(
-  dx: -7.0pt, dy: 2.7pt,
-  box(scale(100%)[E])
-));box(move(
-  dx: -8.0pt, dy: 0pt,
-  [X]
-));h(-8.0pt)
+  [L];box(move(dx: -4.2pt, dy: -1.2pt, box(scale(65%)[A])));box(move(dx: -5.7pt, dy: 0pt, [T]));box(move(dx: -7.0pt, dy: 2.7pt, box(scale(100%)[E])));box(move(dx: -8.0pt, dy: 0pt, [X]));h(-8.0pt)
 }
