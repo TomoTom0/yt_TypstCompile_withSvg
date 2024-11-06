@@ -8,6 +8,7 @@
   flag_toc_tbl: true,
   flag_toc_img: true,
   flag_index: true,
+  icon_img_srcs: ("../img/typst.svg", "../img/sample_notext.svg"),
   keywords_ja: ("word1", "word2"),
   abstract_ja: [
     Abstract...
@@ -17,3 +18,8 @@
 = Header 1 <chap-header1>
 
 conent...
+
+#img(
+  image("img/sample_notext.svg", width: 100%),
+  caption: ["Sample Image"],
+)

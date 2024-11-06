@@ -1,0 +1,13 @@
+<mxfile host="65bd71144e">
+    <diagram id="-DET6qCJaB7BYH08KOor" name="ページ1">
+        <mxGraphModel dx="294" dy="381" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="&lt;table border=&quot;0&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; width=&quot;100%&quot; height=&quot;100%&quot; style=&quot;font-size:1em;&quot;&gt;&lt;tr height=&quot;0%&quot;&gt;&lt;td width=&quot;25%&quot;&gt;Layer 1&lt;/td&gt;&lt;td width=&quot;25%&quot;&gt;Layer 2&lt;/td&gt;&lt;td width=&quot;25%&quot; style=&quot;color:#008cff;&quot;&gt;Layer 3&lt;/td&gt;&lt;td width=&quot;25%&quot;&gt;Layer 4&lt;/td&gt;&lt;/tr&gt;&lt;tr height=&quot;100%&quot;&gt;&lt;td/&gt;&lt;/tr&gt;&lt;/table&gt;" style="strokeWidth=1;shadow=0;dashed=0;align=center;html=1;shape=mxgraph.mockup.navigation.stepBar;strokeColor=#c4c4c4;textColor=#666666;textColor2=#008cff;mainText=,,+,;textSize=17;fillColor=#666666;overflow=fill;fontSize=17;fontColor=#666666;" vertex="1" parent="1">
+                    <mxGeometry x="20" y="160" width="300" height="50" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -2,6 +2,32 @@
 
 // #import "@preview/in-dexter:0.5.3": *
 
+// cited from: https://github.com/typst/typst/issues/180
+#let format(number, precision: 2, decimal_delim: ".", thousands_delim: ",") = {
+  if number < 0 {
+    return "-" + format(calc.abs(number), precision: precision, decimal_delim: decimal_delim, thousands_delim: thousands_delim)
+  }
+  let integer = str(calc.floor(number))
+  if precision <= 0 {
+    return integer
+  }
+
+  let value = str(calc.round(number, digits: precision))
+  let from_dot = decimal_delim + if value == integer {
+    precision * "0"
+  } else {
+    let precision_diff = integer.len() + precision + decimal_delim.len() - value.len()
+    value.slice(integer.len() + 1) + precision_diff * "0"
+  }
+
+  let cursor = 3
+  while integer.len() > cursor {
+    integer = integer.slice(0, integer.len() - cursor) + thousands_delim + integer.slice(integer.len() - cursor, integer.len())
+    cursor += thousands_delim.len() + 3
+  }
+  integer + from_dot
+}
+
 // Store theorem environment numbering
 #let thmcounters = state("thm", ("counters": ("heading": ()), "latest": ()))
 
@@ -382,7 +408,7 @@
   flag_index: false,
   date: (datetime.today().year(), datetime.today().month(), datetime.today().day()),
   version: "",
-  icon_img_src: "",
+  icon_img_srcs: (),
   paper-type: "",
   // Abstruct
   abstract_ja: [],
@@ -520,14 +546,17 @@
     ]
 
     #v(50pt)
-    #grid(columns: 2, align: center, [
-      #image("../img/DXC_Logo_Horiz_Purple-Black_RGB.png", height: 30pt)
-    ], [
-      #image("../img/PJ12_team_icon.svg", height: 30pt)
-    ])
+    #grid(
+      columns: icon_img_srcs.len(),
+       align: center, 
+       gutter: 30pt,
+      ..icon_img_srcs.map(src=>{
+        image(src, height: 30pt)
+      })
+    )
     #v(100pt)
     #text(size: 16pt)[
-      #date.at(0) - #date.at(1) - #date.at(2)
+      #date.at(0) - #date.at(1) - #str(date.at(2))
     ]
 
     // if version != "" {
@@ -538,10 +567,17 @@
     //     #version
     //   ]
     // }
+    
     #v(10pt)
     #text(size: 16pt)[
-      Ver. #version
+      #if version != "" {[Ver.]}
+      #version
     ]
+    
+    // #v(10pt)
+    // #text(size: 16pt)[
+    //   Ver. #version
+    // ]
     #v(50pt)
     #pagebreak()
   ]
