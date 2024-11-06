@@ -9,7 +9,7 @@
 # export PATH=$PATH:/snap/bin
 
 # ---- pdftocairo ----
-# sudoapt install poppler-utils
+# sudo apt install poppler-utils
 
 # ---- typst ----
 # # Firstly, you need to install Rust.
