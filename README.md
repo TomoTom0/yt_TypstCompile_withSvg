@@ -47,7 +47,7 @@ In `compile.sh`, the following steps are executed:
 2. `.pdf` images are converted to `.svg` images.
 3. Typst Document is compiled to `.pdf` file.
 
-The step 1 and 2 are necessary to compile Typst Document with drawio images including texts. If not, the texts in drawio images are not shown correclty in the compiled document.
+The step 1 and 2 are necessary to compile Typst Document with drawio images including texts. If not, the texts in drawio images are not shown correclty in the compiled document. You can additional information from [official issue](https://github.com/typst/typst/issues/1421).
 
 Or you can compile with VSCode Extension `Tinymist Typst` simply if there is no svg files.
 
