@@ -207,22 +207,22 @@
   figure(img, caption: title + caption, supplement: [図], numbering: image_num, kind: "image")
 }
 
-// Definition of abstruct page
+// Definition of abstract page
 #let abstract_page(abstract_ja, abstract_en, keywords_ja: (), keywords_en: ()) = {
   if abstract_ja != [] {
     show <_ja_abstract_>: {
       align(center)[
-        #text(size: 20pt, "概要")
+        #text(size: 1.7em, "概要")
       ]
     }
     [= 概要 <_ja_abstract_>]
 
     v(30pt)
-    set text(size: 12pt)
+    set text(size: 1em)
     h(1em)
     abstract_ja
     par(first-line-indent: 0em)[
-      #text(weight: "bold", size: 12pt)[
+      #text(weight: "bold", size: 1em)[
         キーワード:
         #keywords_ja.join(", ")
       ]
@@ -230,16 +230,16 @@
   } else {
     show <_en_abstract_>: {
       align(center)[
-        #text(size: 18pt, "Abstruct")
+        #text(size: 18pt, "Abstract")
       ]
     }
     [= Abstract <_en_abstract_>]
 
-    set text(size: 12pt)
+    set text(size: 1em)
     h(1em)
     abstract_en
     par(first-line-indent: 0em)[
-      #text(weight: "bold", size: 12pt)[
+      #text(weight: "bold", size: 1em)[
         Key Words:
         #keywords_en.join("; ")
       ]
@@ -263,14 +263,14 @@
 // Definition of chapter outline
 #let toc() = {
   align(left)[
-    #text(size: 20pt, weight: "bold")[
+    #text(size: 1.7em, weight: "bold")[
       #v(30pt)
       目次
       #v(30pt)
     ]
   ]
 
-  set text(size: 12pt)
+  set text(size: 1em)
   set par(leading: 1.24em, first-line-indent: 0pt)
   locate(
     loc => {
@@ -322,14 +322,14 @@
 // Definition of image outline
 #let toc_img() = {
   align(left)[
-    #text(size: 20pt, weight: "bold")[
+    #text(size: 1.7em, weight: "bold")[
       #v(30pt)
       図目次
       #v(30pt)
     ]
   ]
 
-  set text(size: 12pt)
+  set text(size: 1em)
   set par(leading: 1.24em, first-line-indent: 0pt)
   locate(loc => {
     let elements = query(figure.where(outlined: true, kind: "image"), loc)
@@ -355,14 +355,14 @@
 // Definition of table outline
 #let toc_tbl() = {
   align(left)[
-    #text(size: 20pt, weight: "bold")[
+    #text(size: 1.7em, weight: "bold")[
       #v(30pt)
       表目次
       #v(30pt)
     ]
   ]
 
-  set text(size: 12pt)
+  set text(size: 1em)
   set par(leading: 1.24em, first-line-indent: 0pt)
   locate(loc => {
     let elements = query(figure.where(outlined: true, kind: "table"), loc)
@@ -410,13 +410,15 @@
   version: "",
   icon_img_srcs: (),
   paper-type: "",
-  // Abstruct
+  // Abstract
   abstract_ja: [],
   abstract_en: [],
   keywords_ja: (),
   keywords_en: (),
   // The paper size to use.
   paper-size: "a4",
+  font-size: 12pt,
+  flipped: false,
   // The path to a bibliography file if you want to cite some external
   // works.
   bibliography-file: none,
@@ -483,7 +485,7 @@
   show figure: it => {
     set align(center)
     if it.kind == "image" {
-      set text(size: 12pt)
+      set text(size: 1em)
       it.body
       it.supplement
       " " + it.counter.display(it.numbering)
@@ -494,11 +496,11 @@
         c.step()
       })
     } else if it.kind == "table" {
-      set text(size: 12pt)
+      set text(size: 1em)
       it.supplement
       " " + it.counter.display(it.numbering)
       " " + it.caption.body
-      set text(size: 10.5pt)
+      set text(size: 0.9em)
       it.body
       locate(loc => {
         let chapt = counter(heading).at(loc).at(0)
@@ -521,64 +523,68 @@
     // "Hiragino Mincho ProN",
     // "MS Mincho",
     // "Noto Serif CJK JP",
-  ), size: 12pt)
+  ), size: 1em)
 
   // Configure the page properties.
   set page(paper: paper-size, margin: (bottom: 1.75cm, top: 2.25cm))
 
   // The first page.
+  if flipped {
+    set text(size: 0.6em)
+  }
   align(center)[
-    #v(80pt)
-    #text(size: 16pt)[
+    #v(if not flipped {7em} else {0em})
+    
+    #text(size: 1.3em)[
       #university #school #department
     ]
 
-    #text(size: 16pt)[
+    #text(size: 1.3em)[
       #class#paper-type
     ]
-    #v(40pt)
-    #text(size: 22pt)[
+    #v(3em)
+    #text(size: 2em)[
       #title
     ]
-    #v(50pt)
-    #text(size: 16pt)[
+    #v(4em)
+    #text(size: 1.3em)[
       #id #author
     ]
 
-    #v(50pt)
+    #v(4em)
     #grid(
       columns: icon_img_srcs.len(),
        align: center, 
-       gutter: 30pt,
+       gutter: 2.5em,
       ..icon_img_srcs.map(src=>{
-        image(src, height: 30pt)
+        image(src, height: 2.5em)
       })
     )
-    #v(100pt)
-    #text(size: 16pt)[
+    #v(if not flipped {8em} else {2em})
+    #text(size: 1.3em)[
       #date.at(0) - #date.at(1) - #str(date.at(2))
     ]
 
     // if version != "" {
-    //   #v(20pt)
+    //   #v(1.7em)
     //   #text(
-    //     size: 16pt,
+    //     size: 1.3em,
     //   )[
     //     #version
     //   ]
     // }
     
-    #v(10pt)
-    #text(size: 16pt)[
+    #v(0.8em)
+    #text(size: 1.3em)[
       #if version != "" {[Ver.]}
       #version
     ]
     
-    // #v(10pt)
-    // #text(size: 16pt)[
+    // #v(0.8em)
+    // #text(size: 1.3em)[
     //   Ver. #version
     // ]
-    #v(50pt)
+    #v(4em)
     #pagebreak()
   ]
 
@@ -587,12 +593,15 @@
   ])
 
   counter(page).update(1)
-  // Show abstruct
-  abstract_page(abstract_ja, abstract_en, keywords_ja: keywords_ja, keywords_en: keywords_en)
-  pagebreak()
+  // Show abstract
+  if abstract_ja != [] or abstract_en != [] {
+    abstract_page(abstract_ja, abstract_en, keywords_ja: keywords_ja, keywords_en: keywords_en)
+    pagebreak()
+  }
+  // abstract_page(abstract_ja, abstract_en, keywords_ja: keywords_ja, keywords_en: keywords_en)
 
   // Configure paragraph properties.
-  set par(leading: 0.78em, first-line-indent: 12pt, justify: true)
+  set par(leading: 0.78em, first-line-indent: 1em, justify: true)
   show par: set block(spacing: 0.78em)
 
   // Configure chapter headings.
@@ -602,11 +611,11 @@
   show heading.where(level: 1): it => {
     // pagebreak()
     counter(math.equation).update(0)
-    set text(weight: "bold", size: 20pt)
+    set text(weight: "bold", size: 1.7em)
     set block(spacing: 1.5em)
     let pre_chapt = if it.numbering != none {
       text()[
-        #v(50pt)
+        #v(if not flipped {4em} else {1em})
         第
         #numbering(it.numbering, ..counter(heading).at(it.location()))
         章
@@ -615,17 +624,17 @@
     text()[
       #pre_chapt \
       #it.body \
-      #v(50pt)
+      #v(if not flipped {4em} else {1em})
     ]
   }
   show heading.where(level: 2): it => {
-    set text(weight: "bold", size: 16pt)
+    set text(weight: "bold", size: 1.3em)
     set block(above: 1.5em, below: 1.5em)
     it
   }
 
   show heading: it => {
-    set text(weight: "bold", size: 14pt)
+    set text(weight: "bold", size: 1.2em)
     set block(above: 1.5em, below: 1.5em)
     it
   } + empty_par()
@@ -681,7 +690,7 @@
 
   // Display bibliography.
   if bibliography-file != none {
-    show bibliography: set text(12pt)
+    show bibliography: set text(1em)
     bibliography(bibliography-file, title: "参考文献", style: "ieee")
   }
 }

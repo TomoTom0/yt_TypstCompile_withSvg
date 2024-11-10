@@ -1,0 +1,1 @@
+../yt_TypstCompile_withSvg/_convert_image.sh

@@ -1,0 +1,1 @@
+../yt_TypstCompile_withSvg/_build_typst.sh
