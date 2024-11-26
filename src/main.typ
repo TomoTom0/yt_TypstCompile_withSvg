@@ -1,4 +1,4 @@
-#import "template/tomo_like-latex_template.typ": *
+#import "template/tomo_doc_template.typ": *
 #show: master_thesis.with(
   title: "Title",
   author: "Your Name",
@@ -20,6 +20,6 @@
 conent...
 
 #img(
-  image("img/sample_notext.svg", width: 100%),
+  image("img/tomo_doc_template.typ", width: 100%),
   caption: ["Sample Image"],
 )
