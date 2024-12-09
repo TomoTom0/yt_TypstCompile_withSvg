@@ -1,5 +1,5 @@
 
-// #import "template/tomo_like-latex_template.typ": *
+// #import "template/tomo_doc_template.typ": *
 // #show: master_thesis.with(
 //   title: "開発手順書",
 //   author: "Tomohiro Yoshitake",
@@ -17,6 +17,17 @@
 //   ],
 // )
 
+#import "@preview/showybox:2.0.3": showybox
+
+#let bitter-green = rgb("#3d6e41")
+#let bitter-blue = rgb("#3f81a9")
+#let purple-company = rgb("#5f249f")
+#let royal-blue = rgb("#4169e1")
+#let olivedrab = rgb("#6b8e23")
+#let red = rgb("#ff0000")
+#let orange = rgb("#ff8c00")
+#let blue-box(size: 1em, title-color: royal-blue, ..args) = text(size: size)[
+  #showybox(frame: (title-color: title-color), ..args)]
 
 // cited and modified from: https://github.com/ut-khanlab/master_thesis_template_for_typst
 
@@ -629,7 +640,7 @@
     nums.pos().map(str).join(".") + " "
   })
   show heading.where(level: 1): it => {
-    // pagebreak()
+    pagebreak()
     counter(math.equation).update(0)
     set text(weight: "bold", size: 1.7em)
     set block(spacing: 1.5em)
