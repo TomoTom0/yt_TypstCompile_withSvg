@@ -45,7 +45,8 @@ bash ./compile.sh
 In `compile.sh`, the following steps are executed:
 1. Drawio images are converted to SVG images.
    1. `.drawio`, `.drawio.svg` images are converted to `.pdf` images into temporary folder.
-   2. `.pdf` images are converted to `_notext.svg` images.
+   2. if multiples pages are included in the drawio file, the pages are separated into multiple `.pdf` files.
+   3. `.pdf` images are converted to `_notext.svg` images.
 2. SVG images are converted to PDF images.
    1. `.svg` images are converted to `.pdf` images into temporary folder.
    2. `.pdf` images are converted to `_notext.svg` images.
@@ -74,9 +75,19 @@ You can obtain additional information from Comments of `compile.sh`.
 
 - [ ] enable to paste image directly from clipboard on VSCode
 
+## Updates
+
+- 2024/12/9: if multiple pages are included in the drawio file, the pages are separated on converting vector images.
+- 2024/11/7: drawio, pdf images are converted to typst-safe vector images.
+- 2024/11/6: svg images are converted to typst-safe vector images.
+
 ## References
 
 The templates are based on the following repository:
 
 - `chantakan_master-thesis-template_modified.typ`: https://github.com/ut-khanlab/master_thesis_template_for_typst
+
+## License
+
+MIT License
 
