@@ -7,7 +7,7 @@ This repository is a support repository for writing Typst Document and compiling
 You should write Typst Document in `src/main.typ` with the following format:
 
 ```typst
-#import "template/tomo_like-latex_template.typ": *
+#import "template/tomo_doc_template.typ": *
 #show: master_thesis.with(
   title: "Title",
   author: "Your Name",
@@ -34,7 +34,21 @@ It is important to learn more about Typst Document from the following links:
 - https://zenn.dev/chantakan/articles/ed80950004d145#3.1-%E8%A1%A8%E7%B4%99
 - https://zenn.dev/yuhi_ut/articles/how2write-typst1
 
-## How to compile
+## How to Use
+
+### Setup and Start
+
+1. Clone this repository.
+2. Copy all shell scripts in `script/` the repository to the root of your project.
+3. If you want to use the templates, copy the templates in `template/` to `src/template/` of your project.
+4. Write Typst Document in `src/main.typ`.
+5. Place drawio, pdf, svg images in `src/img/` folder.
+6. Maybe you should convert images to typst-safe vector images while writing: `bash _convert`.
+7. Finally, compile Typst Document with the following command: `bash compile.sh`.
+
+## Features
+
+### Convert and Compile
 
 You can compile Typst Document with the following command:
 
@@ -58,8 +72,21 @@ The step 1, 2 and 3 are necessary to compile Typst Document with vector images i
 
 Or you can compile with VSCode Extension `Tinymist Typst` simply if there is no svg files.
 
+### Only Convert or Compile
 
-### Requirements
+If you want to only convert images or compile Typst Document, you can use the following commands:
+
+```bash
+# only convert images
+bash _convert_images.sh
+
+# only compile Typst Document
+bash _build_typst.sh
+```
+
+The shell scripts with the prefix `_` are called in `compile.sh`.
+
+## Requirements
 
 The following software is required to compile the document:
 
@@ -70,6 +97,10 @@ The following software is required to compile the document:
 - librsvg2-bin
 
 You can obtain additional information from Comments of `compile.sh`.
+
+### Templates
+
+The templates are included in the `template` folder. You can modify the templates as you like.
 
 ## Feature Works
 

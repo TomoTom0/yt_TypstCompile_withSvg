@@ -2,16 +2,20 @@
 
 # Convert Image and Compile the Typst document.
 
-# Install the required packages.
+# # Install the required packages.
+
 # ---- drawio ----
 # sudo snap install drawio
 # # after installing drawio, add the following line to .profile or .zprofile
 # export PATH=$PATH:/snap/bin
 
+# ---- librsvg2-bin ----
+# sudo apt install librsvg2-bin
+
 # ---- pdftocairo ----
 # sudo apt install poppler-utils
 
-# ---- typst ----
+# ---- typst and rust ----
 # # Firstly, you need to install Rust.
 # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # # Then, install typst.
