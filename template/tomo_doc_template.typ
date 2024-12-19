@@ -178,7 +178,7 @@
       title += " " + number
     }
     if not boxname == none {
-      title += " (" + boxname + ")"
+      title += "《" + boxname + "》"
     }
     title = titlefmt(title)
     body = bodyfmt(body)
@@ -773,6 +773,7 @@
 
 #import "@preview/in-dexter:0.5.3": *
 #import "@preview/showybox:2.0.3": showybox
+#import "@preview/codelst:2.0.2": sourcefile, sourcecode
 
 #let axiom = thmbox(
   "theorem",
