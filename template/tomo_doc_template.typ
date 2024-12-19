@@ -7,7 +7,7 @@
 //   date: (2024, 11, 15),
 //   version: "0.1.0",
 //   flag_toc_tbl: false,
-//   flag_toc_img: false, 
+//   flag_toc_img: false,
 //   flag_index: false,
 //   keywords_ja: ("開発", "実装"),
 //   abstract_ja: [
@@ -17,24 +17,17 @@
 //   ],
 // )
 
-#import "@preview/showybox:2.0.3": showybox
-
-#let bitter-green = rgb("#3d6e41")
-#let bitter-blue = rgb("#3f81a9")
-#let purple-company = rgb("#5f249f")
-#let royal-blue = rgb("#4169e1")
-#let olivedrab = rgb("#6b8e23")
-#let red = rgb("#ff0000")
-#let orange = rgb("#ff8c00")
-#let blue-box(size: 1em, title-color: royal-blue, ..args) = text(size: size)[
-  #showybox(frame: (title-color: title-color), ..args)]
-
 // cited and modified from: https://github.com/ut-khanlab/master_thesis_template_for_typst
 
 // cited from: https://github.com/typst/typst/issues/180
 #let format(number, precision: 2, decimal_delim: ".", thousands_delim: ",") = {
   if number < 0 {
-    return "-" + format(calc.abs(number), precision: precision, decimal_delim: decimal_delim, thousands_delim: thousands_delim)
+    return "-" + format(
+      calc.abs(number),
+      precision: precision,
+      decimal_delim: decimal_delim,
+      thousands_delim: thousands_delim,
+    )
   }
   let integer = str(calc.floor(number))
   if precision <= 0 {
@@ -51,7 +44,10 @@
 
   let cursor = 3
   while integer.len() > cursor {
-    integer = integer.slice(0, integer.len() - cursor) + thousands_delim + integer.slice(integer.len() - cursor, integer.len())
+    integer = integer.slice(0, integer.len() - cursor) + thousands_delim + integer.slice(
+      integer.len() - cursor,
+      integer.len(),
+    )
     cursor += thousands_delim.len() + 3
   }
   integer + from_dot
@@ -61,7 +57,7 @@
 #let thmcounters = state("thm", ("counters": ("heading": ()), "latest": ()))
 
 // Setting theorem environment
-#let thmenv(identifier, base, base_level, fmt) = {
+#let thmenv(identifier, base, base_level, fmt, boxname: none) = {
   let global_numbering = numbering
 
   return (
@@ -73,6 +69,7 @@
     supplement: identifier,
     base: base,
     base_level: base_level,
+    boxname: boxname,
   ) => {
     let name = none
     if args != none and args.pos().len() > 0 {
@@ -86,7 +83,8 @@
       number = none
     }
     if number == auto and numbering != none {
-      result = locate(loc => {
+      result = context {
+        let loc = here()
         return thmcounters.update(thmpair => {
           let counters = thmpair.at("counters")
           // Manually update heading counter
@@ -123,16 +121,22 @@
           let latest = counters.at(identifier)
           return ("counters": counters, "latest": latest)
         })
-      })
-
-      number = thmcounters.display(x => {
+      }
+      // number = global_numbering(numbering, ..(context thmcounters.get().at("latest")))
+      number = context thmcounters.display(x => {
         return global_numbering(numbering, ..x.at("latest"))
       })
     }
 
     return figure(
       result + // hacky!
-        fmt(name, number, body, ..args.named()) + [#metadata(identifier) <meta:thmenvcounter>],
+      fmt(
+        name,
+        number,
+        body,
+        boxname: boxname,
+        ..args.named(),
+      ) + [#metadata(identifier) <meta:thmenvcounter>] + [#metadata(boxname) <meta:boxname>],
       kind: "thmenv",
       outlined: false,
       caption: none,
@@ -156,11 +160,12 @@
   boxalign: left,
   base: "heading",
   base_level: none,
+  boxname: none,
 ) = {
   if supplement == auto {
     supplement = head
   }
-  let boxfmt(name, number, body, title: auto) = {
+  let boxfmt(name, number, body, title: auto, boxname: none) = {
     if not name == none {
       name = [ #namefmt(name) ]
     } else {
@@ -172,19 +177,28 @@
     if not number == none {
       title += " " + number
     }
+    if not boxname == none {
+      title += " (" + boxname + ")"
+    }
     title = titlefmt(title)
     body = bodyfmt(body)
-    pad(..padding, align(boxalign, block(
-      width: 100%,
-      inset: 0.8em,
-      radius: 0.3em,
-      stroke: 0.05em,
-      breakable: false,
-      ..blockargs.named(),
-      [#title#name#linebreak()#body],
-    )))
+    pad(
+      ..padding,
+      align(
+        boxalign,
+        block(
+          width: 100%,
+          inset: 0.8em,
+          radius: 0.3em,
+          stroke: 0.05em,
+          breakable: false,
+          ..blockargs.named(),
+          [#title#name#linebreak()#body],
+        ),
+      ),
+    )
   }
-  return thmenv(identifier, base, base_level, boxfmt).with(supplement: supplement)
+  return thmenv(identifier, base, base_level, boxfmt,boxname: boxname).with(supplement: supplement)
 }
 
 // Setting plain version
@@ -298,54 +312,54 @@
       #v(30pt)
     ]
   ]
-
   set text(size: 1em)
   set par(leading: 1.24em, first-line-indent: 0pt)
-  locate(
-    loc => {
-      let elements = query(heading.where(outlined: true), loc)
-      for el in elements {
-        let before_toc = query(heading.where(outlined: true).before(loc), loc).find((one) => { one.body == el.body }) != none
-        let page_num = if before_toc {
-          numbering("i", counter(page).at(el.location()).first())
-        } else {
-          counter(page).at(el.location()).first()
-        }
-
-        link(el.location())[#{
-            // acknoledgement has no numbering
-            let chapt_num = if el.numbering != none {
-              numbering(el.numbering, ..counter(heading).at(el.location()))
-            } else { none }
-
-            if el.level == 1 {
-              set text(weight: "black")
-              if chapt_num == none {} else {
-                chapt_num
-                "  "
-              }
-              let rebody = to-string(el.body)
-              rebody
-            } else if el.level == 2 {
-              h(2em)
-              chapt_num
-              " "
-              let rebody = to-string(el.body)
-              rebody
-            } else {
-              h(5em)
-              chapt_num
-              " "
-              let rebody = to-string(el.body)
-              rebody
-            }
-          }]
-        box(width: 1fr, h(0.5em) + box(width: 1fr, repeat[.]) + h(0.5em))
-        [#page_num]
-        linebreak()
+  context {
+    let loc = here()
+    let elements = query(heading.where(outlined: true))
+    for el in elements {
+      let before_toc = query(heading.where(outlined: true).before(loc)).find(one => {
+        one.body == el.body
+      }) != none
+      let page_num = if before_toc {
+        numbering("i", counter(page).at(el.location()).first())
+      } else {
+        counter(page).at(el.location()).first()
       }
-    },
-  )
+
+      link(el.location())[#{
+          // acknoledgement has no numbering
+          let chapt_num = if el.numbering != none {
+            numbering(el.numbering, ..counter(heading).at(el.location()))
+          } else { none }
+
+          if el.level == 1 {
+            set text(weight: "black")
+            if chapt_num == none { } else {
+              chapt_num
+              "  "
+            }
+            let rebody = to-string(el.body)
+            rebody
+          } else if el.level == 2 {
+            h(2em)
+            chapt_num
+            " "
+            let rebody = to-string(el.body)
+            rebody
+          } else {
+            h(5em)
+            chapt_num
+            " "
+            let rebody = to-string(el.body)
+            rebody
+          }
+        }]
+      box(width: 1fr, h(0.5em) + box(width: 1fr, repeat[.]) + h(0.5em))
+      [#page_num]
+      linebreak()
+    }
+  }
 }
 
 // Definition of image outline
@@ -434,6 +448,7 @@
   class: "",
   flag_toc_img: false,
   flag_toc_tbl: false,
+  flag_abstract: true,
   flag_index: false,
   date: (datetime.today().year(), datetime.today().month(), datetime.today().day()),
   version: "",
@@ -470,11 +485,17 @@
           "."
           str(num)
         } else if el.kind == "thmenv" {
-          let thms = query(selector(<meta:thmenvcounter>).after(loc), loc)
+          let thms = query(selector(<meta:thmenvcounter>).after(loc))
           let number = thmcounters.at(thms.first().location()).at("latest")
           it.element.supplement
           " "
           numbering(it.element.numbering, ..number)
+
+          let boxname_metas = query(selector(<meta:boxname>).after(loc))
+          let boxname = boxname_metas.first().value
+          if not it.element.body == none {
+            "《" + boxname + "》"
+          }
         } else {
           it
         }
@@ -495,16 +516,22 @@
       let el = it.element
       let loc = el.location()
       let num = numbering(el.numbering, ..counter(heading).at(loc))
-      if el.level == 1 {
-        str(num)
-        "章"
-      } else if el.level == 2 {
-        str(num)
-        "節"
-      } else if el.level == 3 {
-        str(num)
-        "項"
-      }
+      link(
+        loc,
+        [
+          #if el.level == 1 {
+            str(num)
+            "章"
+          } else if el.level == 2 {
+            str(num)
+            "節"
+          } else if el.level == 3 {
+            str(num)
+            "項"
+          }
+          #text("《" + it.element.body + "》")
+        ],
+      )
     } else {
       it
     }
@@ -546,13 +573,16 @@
 
   // Set the body font. TeX Gyre Pagella is a free alternative
   // to Palatino.
-  set text(font: (
-    "Yu Mincho",
-    "Nimbus Roman",
-    // "Hiragino Mincho ProN",
-    // "MS Mincho",
-    // "Noto Serif CJK JP",
-  ), size: 1em)
+  set text(
+    font: (
+      "Yu Mincho",
+      "Nimbus Roman",
+      // "Hiragino Mincho ProN",
+      // "MS Mincho",
+      // "Noto Serif CJK JP",
+    ),
+    size: 1em,
+  )
 
   // Configure the page properties.
   set page(paper: paper-size, margin: (bottom: 1.75cm, top: 2.25cm))
@@ -562,8 +592,8 @@
     set text(size: 0.6em)
   }
   align(center)[
-    #v(if not flipped {7em} else {0em})
-    
+    #v(if not flipped { 7em } else { 0em })
+
     #text(size: 1.3em)[
       #university #school #department
     ]
@@ -582,16 +612,16 @@
 
     #v(4em)
     #if icon_img_srcs.len() > 0 {
-    grid(
-      columns: icon_img_srcs.len(),
-       align: center, 
-       gutter: 2.5em,
-      ..icon_img_srcs.map(src=>{
-        image(src, height: 2.5em)
-      })
-    )
+      grid(
+        columns: icon_img_srcs.len(),
+        align: center,
+        gutter: 2.5em,
+        ..icon_img_srcs.map(src => {
+          image(src, height: 2.5em)
+        })
+      )
     }
-    #v(if not flipped {8em} else {2em})
+    #v(if not flipped { 8em } else { 2em })
     #text(size: 1.3em)[
       #date.at(0) - #date.at(1) - #str(date.at(2))
     ]
@@ -604,13 +634,13 @@
     //     #version
     //   ]
     // }
-    
+
     #v(0.8em)
     #text(size: 1.3em)[
-      #if version != "" {[Ver.]}
+      #if version != "" { [Ver.] }
       #version
     ]
-    
+
     // #v(0.8em)
     // #text(size: 1.3em)[
     //   Ver. #version
@@ -620,12 +650,12 @@
   ]
 
   set page(footer: [
-    #align(center)[#counter(page).display("i")]
+    #align(center)[#context counter(page).display("i")]
   ])
 
   counter(page).update(1)
   // Show abstract
-  if abstract_ja != [] or abstract_en != [] {
+  if flag_abstract and (abstract_ja != [] or abstract_en != []) {
     abstract_page(abstract_ja, abstract_en, keywords_ja: keywords_ja, keywords_en: keywords_en)
     pagebreak()
   }
@@ -633,7 +663,8 @@
 
   // Configure paragraph properties.
   set par(leading: 0.78em, first-line-indent: 1em, justify: true)
-  show par: set block(spacing: 0.78em)
+  // show par:
+  set block(spacing: 0.78em)
 
   // Configure chapter headings.
   set heading(numbering: (..nums) => {
@@ -646,7 +677,7 @@
     set block(spacing: 1.5em)
     let pre_chapt = if it.numbering != none {
       text()[
-        #v(if not flipped {4em} else {1em})
+        #v(if not flipped { 4em } else { 1em })
         第
         #numbering(it.numbering, ..counter(heading).at(it.location()))
         章
@@ -655,7 +686,7 @@
     text()[
       #pre_chapt \
       #it.body \
-      #v(if not flipped {4em} else {1em})
+      #v(if not flipped { 4em } else { 1em })
     ]
   }
   show heading.where(level: 2): it => {
@@ -664,17 +695,19 @@
     it
   }
 
-  show heading: it => {
-    set text(weight: "bold", size: 1.2em)
-    set block(above: 1.5em, below: 1.5em)
-    it
-  } + empty_par()
+  show heading: it => (
+    {
+      set text(weight: "bold", size: 1.2em)
+      set block(above: 1.5em, below: 1.5em)
+      it
+    } + empty_par()
+  )
 
   // Start with a chapter outline.
   toc()
 
   set page(footer: [
-    #align(center)[#counter(page).display("1")]
+    #align(center)[#context counter(page).display("1")]
   ])
 
   counter(page).update(1)
@@ -728,36 +761,49 @@
 
 // LATEX character
 #let LATEX = {
-  [L];box(move(dx: -4.2pt, dy: -1.2pt, box(scale(65%)[A])));box(move(dx: -5.7pt, dy: 0pt, [T]));box(move(dx: -7.0pt, dy: 2.7pt, box(scale(100%)[E])));box(move(dx: -8.0pt, dy: 0pt, [X]));h(-8.0pt)
+  [L]
+  box(move(dx: -4.2pt, dy: -1.2pt, box(scale(65%)[A])))
+  box(move(dx: -5.7pt, dy: 0pt, [T]))
+  box(move(dx: -7.0pt, dy: 2.7pt, box(scale(100%)[E])))
+  box(move(dx: -8.0pt, dy: 0pt, [X]))
+  h(-8.0pt)
 }
 
 // ---------------------------------------------------------------------------------------
 
-// #import "./chantakan_master-thesis-template_modified.typ": *
 #import "@preview/in-dexter:0.5.3": *
-// #import "@preview/minimal-presentation:0.2.0": *
 #import "@preview/showybox:2.0.3": showybox
 
 #let axiom = thmbox(
   "theorem",
   "公理",
-  // padding: (top: -0.5em, bottom: -0.5em),
   base_level: 1,
 )
 
 #let definition = thmbox(
   "theorem",
   "定義",
-  // padding: (top: -0.5em, bottom: -0.5em),
   base_level: 1,
 )
 
 #let theorem = thmbox(
   "theorem",
   "定理",
-  // padding: (top: -0.5em, bottom: -0.5em),
   base_level: 1,
 )
+
+#let conclusion = thmbox(
+  "theorem",
+  "結論",
+  base_level: 1,
+)
+
+#let assump = thmbox(
+  "theorem",
+  "前提",
+  base_level: 1,
+)
+
 
 #let br = linebreak()
 
@@ -770,21 +816,13 @@
 #let orange = rgb("#ff8c00")
 
 
-// #import "@preview/colorful-boxes:1.3.1": colorbox, slanted-colorbox
-
-//#set text(font: "Lato")
-//#show math.equation: set text(font: "Lato Math")
-//#show raw: set text(font: "Fira Code")
-
-// #show figure.caption: set text(10pt)
 #let stbox(..args) = box(stroke: black, outset: 0.5em, radius: 0.3em, ..args)
-// #set text(size: 18pt)
 
-// #set list(body-indent: 0.5cm, marker: (place(center, "▸")), spacing: 1.2em)
-// #show grid: set grid(columns: 2, gutter: 1em, align: top + left)
-// #show figure: set figure(supplement: "Fig")
 #let blue-box(size: 1em, title-color: royal-blue, ..args) = text(size: size)[
   #showybox(frame: (title-color: title-color), ..args)]
+
+
+// ---------------------------------------------------------------------------------------
 
 // #show table.cell.where(y: 0): strong
 #let table2(..args) = table(
@@ -817,3 +855,96 @@
   ..args
 )
 
+#let slimedTable = (
+  arg_columns,
+  arg_tableData,
+  slimedHeaders,
+  stroke_color: royal-blue.lighten(30%),
+  font-size: 0.8em,
+  arg_align: left,
+) => {
+  let tableData = arg_tableData;
+  if tableData.len() == 0 {
+    return table()
+  }
+  let headers = tableData.at(0).map(cell => cell.trim())
+  let rowIndex_starts = headers.map(_ => 0);
+  let slimed = ()
+  for enu_row in tableData.enumerate() {
+    let (rowIndex, row) = enu_row;
+    let row_new = ()
+    for enu_cell in row.enumerate() {
+      let (colIndex, cell) = enu_cell;
+      let header = headers.at(colIndex);
+      let flag_slimTarget = slimedHeaders.contains(header);
+      let flag_sameCell = rowIndex > 0 and cell == tableData.at(rowIndex - 1).at(colIndex);
+      if flag_slimTarget and flag_sameCell {
+        let rowIndex_start = rowIndex_starts.at(colIndex);
+        row_new.push((cell: "", fill: none));
+      } else {
+        row_new.push((cell: cell.trim(), fill: white));
+      }
+      if slimed.len() > 0 and flag_slimTarget and (rowIndex == tableData.len() - 1 or not flag_sameCell) {
+        let rowIndex_start = rowIndex_starts.at(colIndex);
+        let rowspan = rowIndex - rowIndex_start;
+        if rowIndex == tableData.len() - 1 and flag_sameCell {
+          rowspan += 1;
+        }
+        let content = slimed.at(rowIndex_start).at(colIndex);
+        slimed.at(rowIndex_start).at(colIndex) = (cell: table.cell(rowspan: rowspan, content.cell), fill: content.fill);
+        rowIndex_starts.at(colIndex) = rowIndex;
+      }
+    }
+    slimed.push(row_new)
+  }
+
+  let slimed_filtered_body = slimed.slice(1).flatten().filter(row=>row.fill != none).map(row => row.cell);
+
+  text(size: font-size)[
+    #table(inset: (x: 0% + 0.7em, y: 0.4em), columns: arg_columns, align: arg_align, fill: (x, y)=> {
+      if y == 0 {
+        return stroke_color.lighten(80%);
+        return none;
+      }
+      // return slimed.at(y).at(x).fill;
+    }, stroke: (x, y)=>{
+      let info = (:)
+      // let cellData = slimed_filtered.at(y).at(x);
+      // let cellData = (cell:"", fill:none);
+      if y <= 0 {
+        info.insert("top", 0.5pt + stroke_color);
+        info.insert("bottom", 1pt + stroke_color);
+      } else {
+        info.insert("top", 0.5pt + stroke_color);
+        info.insert("bottom", 0.5pt + stroke_color);
+      }
+      if y == slimed.len() - 1 {
+        info.insert("bottom", 0.5pt + stroke_color);
+      }
+      return info;
+    },table.header(..headers), ..slimed_filtered_body)
+  ]
+}
+
+#let filter_tableData_custom = (tableData, func) => tableData.enumerate().filter(enum_row => {
+  let (rowIndex, row) = enum_row;
+  return rowIndex == 0 or func(row)
+}).map(enum_row => {
+  let (rowIndex, row) = enum_row;
+  return row;
+});
+
+#let filter_tableData = (tableData, colIndex, target) => filter_tableData_custom(tableData, row => row.at(colIndex) == target);
+
+#let filter_tableData_regex = (tableData, colIndex, regex_str) => filter_tableData_custom(tableData, row => row.at(colIndex).contains(regex(regex_str)));
+
+#let filterWithHeader_tableData = (tableData, headers) => {
+  let orig_headers = tableData.at(0);
+  let arr_colIndex = orig_headers.map(header => {
+    if headers.contains(header) {
+      return orig_headers.position(d=> d==header);
+    } else {
+      return -1;
+    }}).filter(colIndex => colIndex != -1);
+  return tableData.map(row => arr_colIndex.map(colIndex => row.at(colIndex)));
+};

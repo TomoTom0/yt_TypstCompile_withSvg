@@ -21,5 +21,5 @@ conent...
 
 #img(
   image("img/tomo_doc_template.typ", width: 100%),
-  caption: ["Sample Image"],
+  caption: [Sample Image],
 )
