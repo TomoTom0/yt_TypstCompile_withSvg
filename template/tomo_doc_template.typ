@@ -178,7 +178,7 @@
       title += " " + number
     }
     if not boxname == none {
-      title += "《" + boxname + "》"
+      title += " (" + boxname + ")"
     }
     title = titlefmt(title)
     body = bodyfmt(body)
@@ -222,22 +222,23 @@
 
 // Counting table number
 #let table_num(_) = {
-  locate(loc => {
+  context  {
+    let loc = here()
     let chapt = counter(heading).at(loc).at(0)
     let c = counter("table-chapter" + str(chapt))
     let n = c.at(loc).at(0)
     str(chapt) + "." + str(n + 1)
-  })
+  }
 }
 
 // Counting image number
 #let image_num(_) = {
-  locate(loc => {
-    let chapt = counter(heading).at(loc).at(0)
+  context {
+    let chapt = counter(heading).at(here()).at(0)
     let c = counter("image-chapter" + str(chapt))
-    let n = c.at(loc).at(0)
+    let n = c.at(here()).at(0)
     str(chapt) + "." + str(n + 1)
-  })
+  }
 }
 
 // Definition of table format
@@ -374,15 +375,14 @@
 
   set text(size: 1em)
   set par(leading: 1.24em, first-line-indent: 0pt)
-  locate(loc => {
-    let elements = query(figure.where(outlined: true, kind: "image"), loc)
+  context {
+  let elements = query(figure.where(outlined: true, kind: "image"))
+
     for el in elements {
       let chapt = counter(heading).at(el.location()).at(0)
       let num = counter(el.kind + "-chapter" + str(chapt)).at(el.location()).at(0) + 1
       let page_num = counter(page).at(el.location()).first()
       let caption_body = to-string(el.caption.body)
-      // let image_alt = to-string(el.body)
-      // let title = image_alt or caption_body
       str(chapt)
       "."
       str(num)
@@ -392,7 +392,8 @@
       [#page_num]
       linebreak()
     }
-  })
+  }
+  // })
 }
 
 // Definition of table outline
@@ -407,8 +408,9 @@
 
   set text(size: 1em)
   set par(leading: 1.24em, first-line-indent: 0pt)
-  locate(loc => {
-    let elements = query(figure.where(outlined: true, kind: "table"), loc)
+  // locate(loc => {
+  context {
+    let elements = query(figure.where(outlined: true, kind: "table"))
     for el in elements {
       let chapt = counter(heading).at(el.location()).at(0)
       let num = counter(el.kind + "-chapter" + str(chapt)).at(el.location()).at(0) + 1
@@ -423,7 +425,7 @@
       [#page_num]
       linebreak()
     }
-  })
+  }
 }
 
 // Setting empty par
@@ -546,11 +548,12 @@
       it.supplement
       " " + it.counter.display(it.numbering)
       " " + it.caption.body
-      locate(loc => {
+      context  {
+        let loc = here()
         let chapt = counter(heading).at(loc).at(0)
         let c = counter("image-chapter" + str(chapt))
         c.step()
-      })
+      }
     } else if it.kind == "table" {
       set text(size: 1em)
       it.supplement
@@ -558,11 +561,12 @@
       " " + it.caption.body
       set text(size: 0.9em)
       it.body
-      locate(loc => {
+      context {
+        let loc = here()
         let chapt = counter(heading).at(loc).at(0)
         let c = counter("table-chapter" + str(chapt))
         c.step()
-      })
+      }
     } else {
       it
     }
@@ -576,7 +580,7 @@
   set text(
     font: (
       "Yu Mincho",
-      "Nimbus Roman",
+      // "Nimbus Roman",
       // "Hiragino Mincho ProN",
       // "MS Mincho",
       // "Noto Serif CJK JP",
@@ -773,7 +777,6 @@
 
 #import "@preview/in-dexter:0.5.3": *
 #import "@preview/showybox:2.0.3": showybox
-#import "@preview/codelst:2.0.2": sourcefile, sourcecode
 
 #let axiom = thmbox(
   "theorem",
